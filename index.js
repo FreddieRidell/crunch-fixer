@@ -11,23 +11,14 @@ process.stdin
   .on("end", () => {
     console.log("Date,Transaction description,Amount,Balance");
 
-    R.pipe(
-      R.map(row => ({
-        date: row["Date"],
-        description: row["Transaction description"],
-        amount: row["Amount"]
-      })),
+	  R.pipe(
+		  R.map( ({ Date: date, Amount, Memo }) => ({
+			  date,
+			  amount: Amount,
+			  description: Memo.split("  ")[0]
+		  })),
 
       R.map(R.over(R.lensProp("amount"), x => parseFloat(x, 10))),
-      R.map(
-        R.over(
-          R.lensProp("date"),
-          R.pipe(
-            parseISO,
-            format("dd/MM/yyyy")
-          )
-        )
-      ),
 
       R.reverse,
 
@@ -48,7 +39,8 @@ process.stdin
         [date, description, amount, balance].join(", ")
       ),
 
-      R.join("\n"),
-      console.log
+
+		  R.join("\n"),
+			console.log,
     )(results);
   });
